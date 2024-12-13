@@ -1,9 +1,31 @@
 import React, { useState } from "react";
 import axios from "axios";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const App: React.FC = () => {
   const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState<any>(null);
+  const [forecastData, setForecastData] = useState<any>(null);
   const [error, setError] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -11,13 +33,15 @@ const App: React.FC = () => {
     const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
     try {
       const response = await axios.get(
-        `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}`
+        `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${city}&days=7`
       );
-      setWeatherData(response.data);
+      setWeatherData(response.data.current);
+      setForecastData(response.data.forecast.forecastday);
       setError("");
     } catch (err) {
       console.error("Error fetching weather data:", err);
       setWeatherData(null);
+      setForecastData(null);
       setError("Could not fetch weather data. Please try again.");
     }
   };
@@ -54,6 +78,28 @@ const App: React.FC = () => {
       setError("Please enter a city name.");
     }
   };
+
+  const generateChartData = () => {
+    if (!forecastData) return null;
+
+    const labels = forecastData.map((day: any) => day.date);
+    const temperatures = forecastData.map((day: any) => day.day.avgtemp_c);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Average Temperature (°C)",
+          data: temperatures,
+          fill: false,
+          backgroundColor: "rgba(54, 162, 235, 0.6)",
+          borderColor: "rgba(54, 162, 235, 1)",
+        },
+      ],
+    };
+  };
+
+  const chartData = generateChartData();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-100">
@@ -93,32 +139,25 @@ const App: React.FC = () => {
         {error && <p className="text-red-500 mt-4">{error}</p>}
         {weatherData && (
           <div className="mt-4 text-center">
-            <h2 className="text-xl font-bold">
-              {weatherData.location.name}, {weatherData.location.region}
-            </h2>
-            <p className="text-lg">{weatherData.location.country}</p>
-            <p className="text-lg">{weatherData.current.condition.text}</p>
+            <h2 className="text-xl font-bold">{city}</h2>
+            <p className="text-lg">{weatherData.condition.text}</p>
             <img
-              src={weatherData.current.condition.icon}
+              src={weatherData.condition.icon}
               alt="Weather Icon"
               className="mx-auto"
             />
-            <p className="text-lg">
-              Temperature: {weatherData.current.temp_c}°C (Feels like:{" "}
-              {weatherData.current.feelslike_c}°C)
-            </p>
-            <p className="text-lg">
-              Wind: {weatherData.current.wind_kph} km/h{" "}
-              {weatherData.current.wind_dir}
-            </p>
-            <p className="text-lg">Humidity: {weatherData.current.humidity}%</p>
-            <p className="text-lg">UV Index: {weatherData.current.uv}</p>
-            <p className="text-lg">
-              Pressure: {weatherData.current.pressure_mb} mb
-            </p>
+            <p className="text-lg">Temperature: {weatherData.temp_c}°C</p>
+            <p className="text-lg">Humidity: {weatherData.humidity}%</p>
+            <p className="text-lg">Wind: {weatherData.wind_kph} km/h</p>
             <p className="text-sm text-gray-600">
-              Last updated: {weatherData.current.last_updated}
+              Last updated: {weatherData.last_updated}
             </p>
+          </div>
+        )}
+        {forecastData && chartData && (
+          <div className="mt-6">
+            <h3 className="text-lg font-bold text-center">7-Day Forecast</h3>
+            <Line data={chartData} />
           </div>
         )}
       </div>
