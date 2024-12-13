@@ -114,14 +114,7 @@ const App: React.FC = () => {
             <p className="text-lg">Humidity: {weatherData.current.humidity}%</p>
             <p className="text-lg">UV Index: {weatherData.current.uv}</p>
             <p className="text-lg">
-              Visibility: {weatherData.current.vis_km} km
-            </p>
-            <p className="text-lg">
               Pressure: {weatherData.current.pressure_mb} mb
-            </p>
-            <p className="text-sm text-gray-600">
-              Latitude: {weatherData.location.lat}, Longitude:{" "}
-              {weatherData.location.lon}
             </p>
             <p className="text-sm text-gray-600">
               Last updated: {weatherData.current.last_updated}
