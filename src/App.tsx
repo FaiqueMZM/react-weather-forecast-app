@@ -93,7 +93,10 @@ const App: React.FC = () => {
         {error && <p className="text-red-500 mt-4">{error}</p>}
         {weatherData && (
           <div className="mt-4 text-center">
-            <h2 className="text-xl font-bold">{weatherData.location.name}</h2>
+            <h2 className="text-xl font-bold">
+              {weatherData.location.name}, {weatherData.location.region}
+            </h2>
+            <p className="text-lg">{weatherData.location.country}</p>
             <p className="text-lg">{weatherData.current.condition.text}</p>
             <img
               src={weatherData.current.condition.icon}
@@ -101,7 +104,24 @@ const App: React.FC = () => {
               className="mx-auto"
             />
             <p className="text-lg">
-              Temperature: {weatherData.current.temp_c}°C
+              Temperature: {weatherData.current.temp_c}°C (Feels like:{" "}
+              {weatherData.current.feelslike_c}°C)
+            </p>
+            <p className="text-lg">
+              Wind: {weatherData.current.wind_kph} km/h{" "}
+              {weatherData.current.wind_dir}
+            </p>
+            <p className="text-lg">Humidity: {weatherData.current.humidity}%</p>
+            <p className="text-lg">UV Index: {weatherData.current.uv}</p>
+            <p className="text-lg">
+              Visibility: {weatherData.current.vis_km} km
+            </p>
+            <p className="text-lg">
+              Pressure: {weatherData.current.pressure_mb} mb
+            </p>
+            <p className="text-sm text-gray-600">
+              Latitude: {weatherData.location.lat}, Longitude:{" "}
+              {weatherData.location.lon}
             </p>
             <p className="text-sm text-gray-600">
               Last updated: {weatherData.current.last_updated}
